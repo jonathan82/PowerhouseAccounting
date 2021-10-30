@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react"
-import { Table, Button } from "react-bootstrap"
+import { Table } from "react-bootstrap"
+import Money from './Money'
 
 const TransactionList = ({transactions}) => {
     return (
-        <Table>
+        <Table striped bordered hover>
             <thead>
                 <tr>
                     <th>Date</th>
@@ -13,10 +13,10 @@ const TransactionList = ({transactions}) => {
             </thead>
             <tbody>
                 {transactions.map((t) => 
-                <tr>
+                <tr key={t.id}>
                     <td>{t.transactionDate}</td>
-                    <td>{t.amount}</td>
-                    <td>{t.balanceAfter}</td>
+                    <td><Money amount={t.amount} /></td>
+                    <td><Money amount={t.balanceAfter} /></td>
                 </tr>)}
             </tbody>
         </Table>

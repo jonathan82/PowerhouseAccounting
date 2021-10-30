@@ -8,7 +8,7 @@ const API_URL = process.env.REACT_APP_API_URL
 
 const AccountList = () => {
     const connection = useSignalR(API_URL)
-    const [accounts, setAccounts] = useState([])
+    const [accounts, setAccounts] = useState()
 
     useEffect(() => {
         const fetchData = async () => {
@@ -24,14 +24,9 @@ const AccountList = () => {
         }        
     },[connection])
 
-    const accountList = accounts.map((acc) => {
-        return (
-            <tr key={acc.id}>
-                <td><Link to={`/account/${acc.id}`}>{acc.accountNumber}</Link></td>
-                <td>{acc.accountName}</td>
-                <td><Money amount={acc.balance} /></td>
-            </tr>)
-    })
+    if (!accounts) {
+        return <div>Loading...</div>
+    }
 
     return (
         <>
@@ -48,7 +43,13 @@ const AccountList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {accountList}
+                    {accounts.map(acc => 
+                    <tr key={acc.id}>
+                        <td><Link to={`/account/${acc.id}`}>{acc.accountNumber}</Link></td>
+                        <td>{acc.accountName}</td>
+                        <td><Money amount={acc.balance} /></td>
+                    </tr>                    
+                    )}
                 </tbody>                
             </Table>
         </>

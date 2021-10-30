@@ -85,7 +85,18 @@ namespace PowerhouseAccounting.Business.Services
                 SqlDbType = System.Data.SqlDbType.Money,
                 Direction = System.Data.ParameterDirection.Output
             };
-            _db.Database.ExecuteSqlRaw("exec AccountDepositWithdraw @id, @amount, @balanceAfter output", accountIdParam, amountParam, balanceAfterParam);
+            try
+            {
+                _db.Database.ExecuteSqlRaw("exec AccountDepositWithdraw @id, @amount, @balanceAfter output", accountIdParam, amountParam, balanceAfterParam);
+            }
+            catch (SqlException ex)
+            {
+                if (ex.Number==51000)
+                {
+                    throw new BusinessException("Account Balance cannot be less than 0");
+                }
+                throw;
+            }            
             return (decimal)balanceAfterParam.Value;
         }
 
@@ -119,6 +130,7 @@ namespace PowerhouseAccounting.Business.Services
                 .OrderByDescending(x => x.TransactionDate)
                 .Select(x => new AccountTransactionDto
             {
+                Id = x.Id,
                 TransactionDate = x.TransactionDate,
                 Amount = x.Amount,
                 BalanceAfter = x.BalanceAfter

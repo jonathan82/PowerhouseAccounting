@@ -60,12 +60,23 @@
     <Folder Include="Properties" />
     <Folder Include="dbo\" />
     <Folder Include="dbo\Tables\" />
+    <Folder Include="dbo\Scripts" />
+    <Folder Include="dbo\StoredProcedures" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Account.sql" />
-    <Build Include="dbo\Tables\Transaction.sql" />
+    <Build Include="dbo\StoredProcedures\AccountDepositWithdraw.sql" />
+    <Build Include="dbo\StoredProcedures\AccountInsert.sql" />
+    <Build Include="dbo\StoredProcedures\AccountUpdate.sql" />
+    <Build Include="dbo\Tables\AccountTransaction.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="PowerhouseAccounting.Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="dbo\Scripts\Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PowerhouseAccounting.Database.publish.xml" />
   </ItemGroup>
 </Project>

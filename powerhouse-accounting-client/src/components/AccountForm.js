@@ -3,7 +3,7 @@ import { Form, Button, Alert } from "react-bootstrap"
 import Money from './Money'
 import ErrorList from './ErrorList'
 
-const AccountForm = ({account, onSubmit, errors}) => {
+const AccountForm = ({account, onSubmit, errors, className}) => {
     const [accountName, setAccountName] = useState(account ? account.accountName : '')
 
     const handleSubmit = (e) => {
@@ -12,7 +12,7 @@ const AccountForm = ({account, onSubmit, errors}) => {
     }
 
     return (
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} className={className}>
             <ErrorList errors={errors} />
             <Form.Group className="mb-3">
                 <Form.Label>Account No.</Form.Label>
@@ -20,7 +20,7 @@ const AccountForm = ({account, onSubmit, errors}) => {
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Account Name</Form.Label>
-                <Form.Control type="text" value={accountName} onChange={(e) => setAccountName(e.target.value) } />
+                <Form.Control required type="text" value={accountName} onChange={(e) => setAccountName(e.target.value) } />
             </Form.Group>
             <Form.Group className="mb-3">
                 <Form.Label>Balance</Form.Label>

@@ -43,5 +43,17 @@ namespace PowerhouseAccounting.API.Hubs
             }
             return 0;
         }
+
+        public void ExecuteTransaction(int accountId, decimal amount)
+        {
+            try
+            {
+                _accountSvc.DepositWithdraw(accountId, amount);
+            }
+            catch (BusinessException ex)
+            {
+                throw;
+            }            
+        }
     }
 }
