@@ -33,15 +33,17 @@ namespace PowerhouseAccounting.API.Hubs
 
         public int SaveAccount(AccountInputDto input)
         {
+            int savedId = 0;
             try
             {
-                return _accountSvc.Save(input);
+                savedId = _accountSvc.Save(input);
+                Clients.All.SendAsync("NotifyChange");
             }
             catch (BusinessException ex)
             {
                 //do something
             }
-            return 0;
+            return savedId;
         }
 
         public void ExecuteTransaction(int accountId, decimal amount)
@@ -49,6 +51,7 @@ namespace PowerhouseAccounting.API.Hubs
             try
             {
                 _accountSvc.DepositWithdraw(accountId, amount);
+                Clients.All.SendAsync("NotifyChange");
             }
             catch (BusinessException ex)
             {

@@ -10,16 +10,20 @@ const AccountList = () => {
     const connection = useSignalR(API_URL)
     const [accounts, setAccounts] = useState()
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const accts = await connection.invoke('ListAccounts')                
-                setAccounts(accts)
-            } catch (error) {
-                console.log('cannot fetch accounts: ' + error)
-            }                        
-        }        
+    const fetchData = async () => {
+        try {
+            const accts = await connection.invoke('ListAccounts')                
+            setAccounts(accts)
+        } catch (error) {
+            console.log('cannot fetch accounts: ' + error)
+        }                        
+    }       
+
+    useEffect(() => {         
         if (connection) {
+            connection.on('NotifyChange', () => {
+                fetchData()
+            })
             fetchData()            
         }        
     },[connection])

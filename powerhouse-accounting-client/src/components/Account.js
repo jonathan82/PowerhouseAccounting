@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import useSignalR from '../hooks/UseSignalR'
-import { Link, useParams, Redirect } from 'react-router-dom'
+import { useParams, Redirect } from 'react-router-dom'
 import AccountForm from './AccountForm'
 import TransactionList from './TransactionList'
 import TransactionForm from "./TransactionForm"
@@ -11,7 +11,6 @@ const API_URL = process.env.REACT_APP_API_URL
 
 const Account = () => {
     let { accountId } = useParams()
-    accountId = parseInt(accountId)
     const [account, setAccount] = useState()
     const [transactions, setTransactions] = useState([])
     const [newAccountId, setNewAccountId] = useState()
@@ -19,8 +18,9 @@ const Account = () => {
 
     const fetchData = async () => {
         try {
-            const acct = await connection.invoke('FindAccount', accountId)
-            const trans = await connection.invoke('ListTransactions', accountId)
+            const parsedAccountId = parseInt(accountId)
+            const acct = await connection.invoke('FindAccount', parsedAccountId)
+            const trans = await connection.invoke('ListTransactions', parsedAccountId)
             setAccount(acct)
             setTransactions(trans)
         } catch (error) {
@@ -28,17 +28,15 @@ const Account = () => {
         }
     }
 
-    useEffect(() => {        
+    useEffect(() => {    
+        console.log('running effect...')    
         if (accountId && connection) {
+            connection.on('NotifyChange', () => {
+                fetchData()
+            })
             fetchData()
         }
     }, [connection])
-
-    // useEffect(() => {
-    //     connection.on('NotifyChange', () => {
-    //         fetchData()
-    //     })
-    // }, [connection])
 
     if ((!account && accountId) || !transactions) {
         return <div>Loading...</div>
@@ -65,7 +63,7 @@ const Account = () => {
     }
 
     if (newAccountId) {
-        return <Redirect replace to={`/`} />
+        return <Redirect to={`/account/${newAccountId}`} />
     }
 
     return (
@@ -78,10 +76,14 @@ const Account = () => {
             </Breadcrumb>
             <h3>Account Information</h3>
             <AccountForm account={account} onSubmit={handleSaveAccount} className="mb-4"></AccountForm>
-            <h3>Deposit/Withdraw</h3>
-            <TransactionForm className="mb-4" onSubmit={handleExecuteTransaction} />
-            <h3>Transactions</h3>
-            <TransactionList transactions={transactions} />
+            {accountId ?  
+            <>
+                <h3>Deposit/Withdraw</h3>
+                <TransactionForm className="mb-4" onSubmit={handleExecuteTransaction} />
+                <h3>Transactions</h3>
+                <TransactionList transactions={transactions} />
+            </>
+            : ''}          
         </>
     )
 }
