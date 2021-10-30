@@ -1,0 +1,4 @@
+﻿Use this command to generate the models from the database
+=========================================================
+
+scaffold-dbcontext -Connection "Server=localhost;Database=PowerhouseAccounting;Trusted_Connection=True;" -provider "Microsoft.EntityFrameworkCore.SqlServer" -OutputDir "./Models" -Context "PowerhouseAccountingDbContext" -ContextDir "./" -Project "PowerhouseAccounting.Business" -StartupProject "PowerhouseAccounting.Business" -Force
