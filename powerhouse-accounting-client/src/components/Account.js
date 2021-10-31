@@ -24,7 +24,7 @@ const Account = () => {
                 const parsedAccountId = parseInt(accountId)
                 const acct = await connection.invoke('FindAccount', parsedAccountId)
                 const trans = await connection.invoke('ListTransactions', parsedAccountId)
-                if (isMounted) {
+                if (isMounted) { //make sure we're not updating state on unmounted component
                     setAccount(acct)
                     setTransactions(trans)
                 }

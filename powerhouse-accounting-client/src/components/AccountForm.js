@@ -1,10 +1,14 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Form, Button } from "react-bootstrap"
 import Money from './Money'
 import ErrorList from './ErrorList'
 
-const AccountForm = ({account, onSubmit, errors, className}) => {
+const AccountForm = ({account, onSubmit, className}) => {
     const [accountName, setAccountName] = useState(account ? account.accountName : '')
+
+    useEffect(() => {
+        setAccountName(account ? account.accountName : '')
+    }, [account])
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -13,7 +17,6 @@ const AccountForm = ({account, onSubmit, errors, className}) => {
 
     return (
         <Form onSubmit={handleSubmit} className={className}>
-            <ErrorList errors={errors} />
             <Form.Group className="mb-3">
                 <Form.Label>Account No.</Form.Label>
                 <Form.Control plaintext defaultValue={account ? account.accountNumber : '<new account>'} />

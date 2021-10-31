@@ -5,22 +5,27 @@ const NotificationList = ({ connection }) => {
     const [notifications, setNotifications] = useState([])
     
     useEffect(() => {
+        const addMessage = (type, message) => {
+            setNotifications([...notifications, {type, message}])
+        }
         connection.on('NotifySuccess', (message) => {
-            setNotifications([...notifications, {type: 'success', message }])            
+            addMessage('success', message)         
         })
         connection.on('NotifyError', (message) => {
-            setNotifications([...notifications, {type: 'danger', message }])
+            addMessage('danger', message)
         })
     }, [])
 
-    const handleClose = (e) => {
-        console.log(e)
+    const handleClose = (index) => {
+        const newNots = [...notifications]
+        newNots.splice(index,1)
+        setNotifications(newNots)
     }
 
     return (
         <ToastContainer position="top-center" className="position-fixed p-3">
-            {notifications.map((n,i) =>
-                <Toast bg={n.type} autohide onClose={handleClose} key={i}>
+            {notifications.map((n,index) =>
+                <Toast bg={n.type} autohide onClose={() => handleClose(index)} key={index}>
                     <Toast.Header>
                         <strong className="me-auto">{n.type==='success' ? 'Success' : 'Error'}</strong>
                     </Toast.Header>
