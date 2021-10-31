@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import { ToastContainer, Toast } from "react-bootstrap"
 
-const Notifications = ({ connection }) => {
+const NotificationList = ({ connection }) => {
     const [notifications, setNotifications] = useState([])
     
     useEffect(() => {
         connection.on('NotifySuccess', (message) => {
-            setNotifications([...notifications, {type: 'success', message }])
+            setNotifications([...notifications, {type: 'success', message }])            
         })
         connection.on('NotifyError', (message) => {
             setNotifications([...notifications, {type: 'danger', message }])
@@ -18,11 +18,11 @@ const Notifications = ({ connection }) => {
     }
 
     return (
-        <ToastContainer position="top-center">
-            {notifications.map((n) =>
-                <Toast bg={n.type} autohide onClose={handleClose}>
+        <ToastContainer position="top-center" className="position-fixed p-3">
+            {notifications.map((n,i) =>
+                <Toast bg={n.type} autohide onClose={handleClose} key={i}>
                     <Toast.Header>
-                        <strong className="me-auto">{n.type=='success' ? 'Success' : 'Error'}</strong>
+                        <strong className="me-auto">{n.type==='success' ? 'Success' : 'Error'}</strong>
                     </Toast.Header>
                     <Toast.Body className="text-light">{n.message}</Toast.Body>
                 </Toast>
@@ -31,4 +31,4 @@ const Notifications = ({ connection }) => {
     )
 }
 
-export default Notifications
+export default NotificationList

@@ -1,19 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using PowerhouseAccounting.API.Hubs;
 using PowerhouseAccounting.Business;
 using PowerhouseAccounting.Business.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PowerhouseAccounting.API
 {
@@ -29,6 +22,7 @@ namespace PowerhouseAccounting.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc();
             services.AddControllers();
             services.AddDbContext<PowerhouseAccountingDbContext>(opt =>
                 opt.UseSqlServer(Configuration["DbConnectionString"]));
@@ -64,6 +58,9 @@ namespace PowerhouseAccounting.API
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}");
                 endpoints.MapHub<AccountHub>("/accountHub");
             });
         }

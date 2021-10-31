@@ -4,9 +4,9 @@ import { useParams, Redirect } from 'react-router-dom'
 import AccountForm from './AccountForm'
 import TransactionList from './TransactionList'
 import TransactionForm from "./TransactionForm"
-import Notifications from './Notifications'
+import NotificationList from './NotificationList'
 import { LinkContainer } from "react-router-bootstrap"
-import { Breadcrumb, ToastContainer, Toast } from "react-bootstrap"
+import { Breadcrumb } from "react-bootstrap"
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -17,30 +17,37 @@ const Account = () => {
     const [newAccountId, setNewAccountId] = useState()
     const connection = useSignalR(API_URL)
 
-    let isMounted = true
-    const fetchData = async () => {
-        try {
-            const parsedAccountId = parseInt(accountId)
-            const acct = await connection.invoke('FindAccount', parsedAccountId)
-            const trans = await connection.invoke('ListTransactions', parsedAccountId)
-            if (isMounted) {
-                setAccount(acct)
-                setTransactions(trans)
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
     useEffect(() => {
-        if (isMounted && accountId && connection) {
-            connection.on('NotifyChange', () => {
-                fetchData()
-            })
-            fetchData()
+        let isMounted = true
+        const fetchData = async () => {
+            try {
+                const parsedAccountId = parseInt(accountId)
+                const acct = await connection.invoke('FindAccount', parsedAccountId)
+                const trans = await connection.invoke('ListTransactions', parsedAccountId)
+                if (isMounted) {
+                    setAccount(acct)
+                    setTransactions(trans)
+                }
+            } catch (error) {
+                console.log(error)
+            }
         }
+        const start = async () => {
+            if (accountId) {
+                // existing account - fetch data
+                connection.on('NotifyChange', () => {
+                    fetchData()
+                })
+                await connection.start()
+                fetchData()
+            } else {
+                // new account - just start the connection
+                connection.start()
+            }
+        }
+        start()
         return () => { isMounted = false }
-    }, [connection])
+    }, [])
 
     if ((!account && accountId) || !transactions) {
         return <div>Loading...</div>
@@ -73,7 +80,7 @@ const Account = () => {
 
     return (
         <>
-            <Notifications connection={connection} />
+            <NotificationList connection={connection} />
             <Breadcrumb>
                 <LinkContainer to="/">
                     <Breadcrumb.Item>Account List</Breadcrumb.Item>

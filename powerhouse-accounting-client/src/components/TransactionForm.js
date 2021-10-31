@@ -16,6 +16,7 @@ const TransactionForm = ({ className, onSubmit }) => {
                 <Form.Label>Amount to Deposit(+)/Withdraw(-)</Form.Label>
                 {/* <Form.Control required type="number" value={amount} onChange={(e) => setAmount(e.target.value)} /> */}
                 <CurrencyInput
+                    required
                     className="form-control"
                     placeholder="Please enter a number"
                     defaultValue={amount}

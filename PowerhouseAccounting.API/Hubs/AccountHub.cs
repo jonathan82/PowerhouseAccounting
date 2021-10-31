@@ -38,10 +38,12 @@ namespace PowerhouseAccounting.API.Hubs
             {
                 savedId = _accountSvc.Save(input);
                 Clients.All.SendAsync("NotifyChange");
+                Clients.Caller.SendAsync("NotifySuccess", "Successfully saved account information");
             }
             catch (BusinessException ex)
             {
-                //do something
+                // notify error
+                Clients.Caller.SendAsync("NotifyError", ex.Message);
             }
             return savedId;
         }
@@ -52,10 +54,12 @@ namespace PowerhouseAccounting.API.Hubs
             {
                 _accountSvc.DepositWithdraw(accountId, amount);
                 Clients.All.SendAsync("NotifyChange");
+                Clients.Caller.SendAsync("NotifySuccess", "Successfully executed account transaction");
             }
             catch (BusinessException ex)
             {
-                throw new HubException(ex.Message);
+                // notify client of error
+                Clients.Caller.SendAsync("NotifyError", ex.Message);
             }            
         }
     }

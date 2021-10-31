@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Table, Breadcrumb } from "react-bootstrap"
 import useSignalR from '../hooks/UseSignalR'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import Money from './Money'
 
 const API_URL = process.env.REACT_APP_API_URL
@@ -10,28 +10,51 @@ const AccountList = () => {
     const connection = useSignalR(API_URL)
     const [accounts, setAccounts] = useState()
 
-    let isMounted = true
-    const fetchData = async () => {
-        try {
-            const accts = await connection.invoke('ListAccounts')                            
-            if (isMounted) {                
-                // make sure we're not changing state when the component is umounted
-                setAccounts(accts)                
-            }            
-        } catch (error) {
-            console.log('cannot fetch accounts: ' + error)
-        }                        
-    }       
-
-    useEffect(() => {         
-        if (connection) {
+    useEffect(() => {
+        let isMounted = true
+        const fetchData = async () => {
+            try {
+                const accts = await connection.invoke('ListAccounts')                            
+                if (isMounted) {                               
+                    setAccounts(accts) // make sure we're not changing state when the component is umounted
+                }            
+            } catch (error) {
+                console.log('cannot fetch accounts: ' + error)
+            }                        
+        }   
+        const start = async () => {
             connection.on('NotifyChange', () => {
                 fetchData()
             })
-            fetchData()            
-        } 
-        return () => {isMounted = false}     
-    },[connection])
+            await connection.start()
+            fetchData()
+        }
+        start()
+        return () => {isMounted = false}    
+    }, [])
+
+    // let isMounted = true
+    // const fetchData = async () => {
+    //     try {
+    //         const accts = await connection.invoke('ListAccounts')                            
+    //         if (isMounted) {                
+    //             // make sure we're not changing state when the component is umounted
+    //             setAccounts(accts)                
+    //         }            
+    //     } catch (error) {
+    //         console.log('cannot fetch accounts: ' + error)
+    //     }                        
+    // }       
+
+    // useEffect(() => {    
+    //     if (connection) {
+    //         connection.on('NotifyChange', () => {
+    //             fetchData()
+    //         })
+    //         fetchData()            
+    //     } 
+    //     return () => {isMounted = false}     
+    // },[connection])
 
     if (!accounts) {
         return <div>Loading...</div>
@@ -39,7 +62,7 @@ const AccountList = () => {
 
     return (
         <>
-            <Breadcrumb>               
+            <Breadcrumb>
                 <Breadcrumb.Item active>Account List</Breadcrumb.Item>
             </Breadcrumb>
             <Link className="btn btn-primary mb-3" to="/account">Create Account</Link>
@@ -52,14 +75,14 @@ const AccountList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {accounts.map(acc => 
-                    <tr key={acc.id}>
-                        <td><Link to={`/account/${acc.id}`}>{acc.accountNumber}</Link></td>
-                        <td>{acc.accountName}</td>
-                        <td><Money amount={acc.balance} /></td>
-                    </tr>                    
+                    {accounts.map(acc =>
+                        <tr key={acc.id}>
+                            <td><Link to={`/account/${acc.id}`}>{acc.accountNumber}</Link></td>
+                            <td>{acc.accountName}</td>
+                            <td><Money amount={acc.balance} /></td>
+                        </tr>
                     )}
-                </tbody>                
+                </tbody>
             </Table>
         </>
     )
