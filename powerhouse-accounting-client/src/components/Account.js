@@ -4,8 +4,9 @@ import { useParams, Redirect } from 'react-router-dom'
 import AccountForm from './AccountForm'
 import TransactionList from './TransactionList'
 import TransactionForm from "./TransactionForm"
+import Notifications from './Notifications'
 import { LinkContainer } from "react-router-bootstrap"
-import { Breadcrumb } from "react-bootstrap"
+import { Breadcrumb, ToastContainer, Toast } from "react-bootstrap"
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -16,26 +17,29 @@ const Account = () => {
     const [newAccountId, setNewAccountId] = useState()
     const connection = useSignalR(API_URL)
 
+    let isMounted = true
     const fetchData = async () => {
         try {
             const parsedAccountId = parseInt(accountId)
             const acct = await connection.invoke('FindAccount', parsedAccountId)
             const trans = await connection.invoke('ListTransactions', parsedAccountId)
-            setAccount(acct)
-            setTransactions(trans)
+            if (isMounted) {
+                setAccount(acct)
+                setTransactions(trans)
+            }
         } catch (error) {
             console.log(error)
         }
     }
 
-    useEffect(() => {    
-        console.log('running effect...')    
-        if (accountId && connection) {
+    useEffect(() => {
+        if (isMounted && accountId && connection) {
             connection.on('NotifyChange', () => {
                 fetchData()
             })
             fetchData()
         }
+        return () => { isMounted = false }
     }, [connection])
 
     if ((!account && accountId) || !transactions) {
@@ -50,15 +54,16 @@ const Account = () => {
             }
         } catch (error) {
             console.log(error)
-        }        
+        }
     }
 
     const handleExecuteTransaction = async (amount) => {
         try {
+            const parsedAccountId = parseInt(accountId)
             amount = parseFloat(amount)
-            await connection.invoke('ExecuteTransaction', accountId, amount)
+            await connection.invoke('ExecuteTransaction', parsedAccountId, amount)
         } catch (error) {
-            console.log(error)
+            console.log(error.message)
         }
     }
 
@@ -68,22 +73,23 @@ const Account = () => {
 
     return (
         <>
+            <Notifications connection={connection} />
             <Breadcrumb>
                 <LinkContainer to="/">
                     <Breadcrumb.Item>Account List</Breadcrumb.Item>
-                </LinkContainer>                
+                </LinkContainer>
                 <Breadcrumb.Item active>Account</Breadcrumb.Item>
             </Breadcrumb>
             <h3>Account Information</h3>
             <AccountForm account={account} onSubmit={handleSaveAccount} className="mb-4"></AccountForm>
-            {accountId ?  
-            <>
-                <h3>Deposit/Withdraw</h3>
-                <TransactionForm className="mb-4" onSubmit={handleExecuteTransaction} />
-                <h3>Transactions</h3>
-                <TransactionList transactions={transactions} />
-            </>
-            : ''}          
+            {accountId ?
+                <>
+                    <h3>Deposit/Withdraw</h3>
+                    <TransactionForm className="mb-4" onSubmit={handleExecuteTransaction} />
+                    <h3>Transactions</h3>
+                    <TransactionList transactions={transactions} />
+                </>
+                : ''}
         </>
     )
 }

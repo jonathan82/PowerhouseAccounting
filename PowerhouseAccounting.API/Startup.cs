@@ -44,7 +44,7 @@ namespace PowerhouseAccounting.API
                         .AllowAnyHeader()
                         .AllowCredentials()
                         .SetIsOriginAllowed((host) => true)
-                        .WithOrigins("http://localhost:3000");
+                        .WithOrigins(Configuration["ClientUrl"]);
                 });
             });
             services.AddScoped<AccountService>();

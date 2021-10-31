@@ -10,10 +10,14 @@ const AccountList = () => {
     const connection = useSignalR(API_URL)
     const [accounts, setAccounts] = useState()
 
+    let isMounted = true
     const fetchData = async () => {
         try {
-            const accts = await connection.invoke('ListAccounts')                
-            setAccounts(accts)
+            const accts = await connection.invoke('ListAccounts')                            
+            if (isMounted) {                
+                // make sure we're not changing state when the component is umounted
+                setAccounts(accts)                
+            }            
         } catch (error) {
             console.log('cannot fetch accounts: ' + error)
         }                        
@@ -25,7 +29,8 @@ const AccountList = () => {
                 fetchData()
             })
             fetchData()            
-        }        
+        } 
+        return () => {isMounted = false}     
     },[connection])
 
     if (!accounts) {

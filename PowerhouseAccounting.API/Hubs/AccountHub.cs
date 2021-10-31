@@ -55,7 +55,7 @@ namespace PowerhouseAccounting.API.Hubs
             }
             catch (BusinessException ex)
             {
-                throw;
+                throw new HubException(ex.Message);
             }            
         }
     }

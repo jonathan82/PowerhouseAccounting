@@ -1,7 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using PowerhouseAccounting.Business.Dtos;
-using PowerhouseAccounting.Business.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,24 +17,6 @@ namespace PowerhouseAccounting.Business.Services
         {
             _db = db;
         }
-        
-        /// <summary>
-        /// Creates a new account and returns the ID of that account. Initial balance is zero
-        /// </summary>
-        //public int Create(string accountName)
-        //{
-        //    var accountNumber = GenerateAccountNumber();
-        //    var accountNameParam = new SqlParameter("accountName", accountName);
-        //    var accountNumberParam = new SqlParameter("accountNumber", accountNumber);
-        //    var accountIdParam = new SqlParameter
-        //    {
-        //        ParameterName = "accountId",
-        //        SqlDbType = System.Data.SqlDbType.Int,
-        //        Direction = System.Data.ParameterDirection.Output
-        //    };
-        //    _db.Database.ExecuteSqlRaw("exec AccountInsert @accountName, @accountNumber, @accountId output", accountNameParam, accountNumberParam, accountIdParam);
-        //    return (int)accountIdParam.Value;
-        //}
 
         public int Save(AccountInputDto input)
         {
@@ -91,7 +72,7 @@ namespace PowerhouseAccounting.Business.Services
             }
             catch (SqlException ex)
             {
-                if (ex.Number==51000)
+                if (ex.Number==SqlServerErrorCodes.ACCOUNT_BALANCE_BELOW_ZERO)
                 {
                     throw new BusinessException("Account Balance cannot be less than 0");
                 }

@@ -15,8 +15,7 @@ function App() {
       </div>
       <div className="m-3">
         <Switch>
-          <Route path="/account/:accountId?">
-            <Account></Account>
+          <Route path="/account/:accountId?" render={(props) => <Account key={props.match.params.accountId}></Account>}>            
           </Route>
           <Route path="/">
             <AccountList></AccountList>
