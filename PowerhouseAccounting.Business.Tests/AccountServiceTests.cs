@@ -77,7 +77,7 @@ namespace PowerhouseAccounting.Business.Tests
             });
 
             // act - current balance should be 0
-            Assert.ThrowsException<SqlException>(() => svc.DepositWithdraw(accountId, amountToWithdraw));
+            Assert.ThrowsException<BusinessException>(() => svc.DepositWithdraw(accountId, amountToWithdraw));
         }
 
         private string GenerateRandomString(int length)

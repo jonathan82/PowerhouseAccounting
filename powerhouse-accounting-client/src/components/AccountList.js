@@ -7,7 +7,7 @@ import Money from './Money'
 const API_URL = process.env.REACT_APP_API_URL
 
 const AccountList = () => {
-    const connection = useSignalR(API_URL)
+    const [connection, startConnection] = useSignalR(API_URL)
     const [accounts, setAccounts] = useState()
 
     useEffect(() => {
@@ -26,35 +26,12 @@ const AccountList = () => {
             connection.on('NotifyChange', () => {
                 fetchData()
             })
-            await connection.start()
+            await startConnection()
             fetchData()
         }
         start()
         return () => {isMounted = false}    
     }, [])
-
-    // let isMounted = true
-    // const fetchData = async () => {
-    //     try {
-    //         const accts = await connection.invoke('ListAccounts')                            
-    //         if (isMounted) {                
-    //             // make sure we're not changing state when the component is umounted
-    //             setAccounts(accts)                
-    //         }            
-    //     } catch (error) {
-    //         console.log('cannot fetch accounts: ' + error)
-    //     }                        
-    // }       
-
-    // useEffect(() => {    
-    //     if (connection) {
-    //         connection.on('NotifyChange', () => {
-    //             fetchData()
-    //         })
-    //         fetchData()            
-    //     } 
-    //     return () => {isMounted = false}     
-    // },[connection])
 
     if (!accounts) {
         return <div>Loading...</div>

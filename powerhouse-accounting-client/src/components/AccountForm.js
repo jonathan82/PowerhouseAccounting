@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { Form, Button } from "react-bootstrap"
 import Money from './Money'
-import ErrorList from './ErrorList'
 
 const AccountForm = ({account, onSubmit, className}) => {
     const [accountName, setAccountName] = useState(account ? account.accountName : '')

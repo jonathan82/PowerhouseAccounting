@@ -7,22 +7,15 @@ const useSignalR = (url) => {
         .withAutomaticReconnect()
         .build());
 
-    // useEffect(() => {
-    //     const newConnection = new HubConnectionBuilder()
-    //         .withUrl(url)
-    //         .withAutomaticReconnect()
-    //         .build();
-    //     const start = async () => {
-    //         try {
-    //             await newConnection.start();
-    //             setConnection(newConnection);
-    //         } catch (error) {
-    //             console.log(error)
-    //         }
-    //     }
-    //     start();
-    // }, [])
-    return connection
+    const startConnection = async () => {
+        try {
+            await connection.start()
+        } catch (error) {
+            console.log('cannot start connection: ' + error)
+        }
+    }
+
+    return [connection, startConnection]
 }
 
 export default useSignalR

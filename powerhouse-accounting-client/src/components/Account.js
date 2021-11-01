@@ -11,19 +11,19 @@ import { Breadcrumb } from "react-bootstrap"
 const API_URL = process.env.REACT_APP_API_URL
 
 const Account = () => {
-    let { accountId } = useParams()
+    const params = useParams()
     const [account, setAccount] = useState()
     const [transactions, setTransactions] = useState([])
     const [newAccountId, setNewAccountId] = useState()
-    const connection = useSignalR(API_URL)
+    const [connection, startConnection] = useSignalR(API_URL)
+    const accountId = parseInt(params.accountId)
 
     useEffect(() => {
         let isMounted = true
         const fetchData = async () => {
             try {
-                const parsedAccountId = parseInt(accountId)
-                const acct = await connection.invoke('FindAccount', parsedAccountId)
-                const trans = await connection.invoke('ListTransactions', parsedAccountId)
+                const acct = await connection.invoke('FindAccount', accountId)
+                const trans = await connection.invoke('ListTransactions', accountId)
                 if (isMounted) { //make sure we're not updating state on unmounted component
                     setAccount(acct)
                     setTransactions(trans)
@@ -38,20 +38,16 @@ const Account = () => {
                 connection.on('NotifyChange', () => {
                     fetchData()
                 })
-                await connection.start()
+                await startConnection()
                 fetchData()
             } else {
                 // new account - just start the connection
-                connection.start()
+                startConnection()
             }
         }
         start()
         return () => { isMounted = false }
     }, [])
-
-    if ((!account && accountId) || !transactions) {
-        return <div>Loading...</div>
-    }
 
     const handleSaveAccount = async (input) => {
         try {
@@ -66,19 +62,18 @@ const Account = () => {
 
     const handleExecuteTransaction = async (amount) => {
         try {
-            const parsedAccountId = parseInt(accountId)
-            amount = parseFloat(amount)
-            await connection.invoke('ExecuteTransaction', parsedAccountId, amount)
+            await connection.invoke('ExecuteTransaction', accountId, parseFloat(amount))
         } catch (error) {
             console.log(error.message)
         }
     }
 
-    if (newAccountId) {
-        return <Redirect to={`/account/${newAccountId}`} />
+    if ((!account && accountId) || !transactions) {
+        return <div>Loading...</div>
     }
 
-    return (
+    return newAccountId ? <Redirect to={`/account/${newAccountId}`} /> : 
+    (
         <>
             <NotificationList connection={connection} />
             <Breadcrumb>
